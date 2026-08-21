@@ -503,6 +503,7 @@ const LANGS = {
       closingByStyle: '스타일별 종결 실적', closingByStyleEmpty: '실적이 입력된 스타일이 없습니다.',
       closingReportTitle: '종결보고서', closingEditBtn: '실적 편집', closingColorSize: '컬러/사이즈별 오더 내역',
       closingNotEnteredHint: '이 스타일은 아직 사후 실적이 입력되지 않았습니다. 계획 데이터만 표시됩니다.',
+      closingPlannedProfit: '계획이익', closingActualProfit: '실제이익', closingProfitDiff: '이익차이',
       closingNoData: '종결(출고완료)된 스타일이 없습니다.', closingNoDataHint: '출고율 100% 이상이고 실적이 입력된 스타일이 있으면 여기 표시됩니다.'
     }
   },
@@ -586,6 +587,7 @@ const LANGS = {
       closingByStyle: 'Closed Performance by Style', closingByStyleEmpty: 'No styles with actuals entered yet.',
       closingReportTitle: 'Closing Report', closingEditBtn: 'Edit Actuals', closingColorSize: 'Order Detail by Color/Size',
       closingNotEnteredHint: 'Actuals have not been entered for this style yet. Showing planned data only.',
+      closingPlannedProfit: 'Planned Profit', closingActualProfit: 'Actual Profit', closingProfitDiff: 'Profit Diff',
       closingNoData: 'No fully-shipped (closed) styles yet.', closingNoDataHint: 'Styles with 100%+ shipped and actuals entered will appear here.'
     }
   },
@@ -669,6 +671,7 @@ const LANGS = {
       closingByStyle: 'KQ hoàn tất theo kiểu', closingByStyleEmpty: 'Chưa có kiểu nào được nhập thực tế.',
       closingReportTitle: 'Báo cáo hoàn tất', closingEditBtn: 'Sửa thực tế', closingColorSize: 'Chi tiết đơn theo Màu/Size',
       closingNotEnteredHint: 'Kiểu này chưa được nhập số liệu thực tế. Chỉ hiển thị dữ liệu kế hoạch.',
+      closingPlannedProfit: 'LN kế hoạch', closingActualProfit: 'LN thực tế', closingProfitDiff: 'Chênh lệch LN',
       closingNoData: 'Chưa có kiểu nào hoàn tất xuất hàng.', closingNoDataHint: 'Kiểu có tỷ lệ xuất ≥100% và đã nhập thực tế sẽ hiện ở đây.'
     }
   }
@@ -1090,11 +1093,11 @@ const formatCompact = (n) => {
 
 function summaryCard(icon, label, value, sub, colorClass) {
   return `<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center gap-4">
-    <div class="p-3 rounded-lg ${colorClass}"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
-    <div class="min-w-0">
+    <div class="p-3 rounded-lg ${colorClass} shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+    <div class="min-w-0 flex-1">
       <p class="text-xs text-slate-500 font-medium truncate">${esc(label)}</p>
-      <p class="text-lg font-bold text-slate-800 truncate">${esc(value)}</p>
-      ${sub ? `<p class="text-xs text-slate-400 truncate">${esc(sub)}</p>` : ''}
+      <p class="text-lg font-bold text-slate-800 leading-snug">${esc(value)}</p>
+      ${sub ? `<p class="text-xs text-slate-400 leading-snug">${esc(sub)}</p>` : ''}
     </div>
   </div>`;
 }
@@ -3165,7 +3168,9 @@ function renderPostClosing() {
           <th class="px-2 py-2 font-semibold text-right">${P.thPlannedSales}</th>
           <th class="px-2 py-2 font-semibold text-right">${P.thActualSales}</th>
           <th class="px-2 py-2 font-semibold text-right">${P.kpiAchieve}</th>
-          <th class="px-2 py-2 font-semibold text-right">${P.compareDiff}</th>
+          <th class="px-2 py-2 font-semibold text-right bg-sky-50/60 text-sky-800">${P.closingPlannedProfit}</th>
+          <th class="px-2 py-2 font-semibold text-right bg-sky-50/60 text-sky-800">${P.closingActualProfit}</th>
+          <th class="px-2 py-2 font-semibold text-right">${P.closingProfitDiff}</th>
           <th class="px-2 py-2 font-semibold text-center">${P.thStatus}</th>
         </tr></thead>
         <tbody class="divide-y divide-slate-100">
@@ -3176,6 +3181,8 @@ function renderPostClosing() {
             <td class="px-2 py-2 text-right text-slate-500">${fmtMoney(s.plannedSales)}</td>
             <td class="px-2 py-2 text-right font-semibold ${s.entered ? 'text-emerald-700' : 'text-slate-300'}">${s.entered ? fmtMoney(s.actualSales) : '-'}</td>
             <td class="px-2 py-2 text-right">${s.entered ? `<span class="px-1.5 py-0.5 rounded font-bold ${s.achieveRate >= 100 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}" style="font-size:11px">${s.achieveRate.toFixed(1)}%</span>` : '-'}</td>
+            <td class="px-2 py-2 text-right text-slate-500 bg-sky-50/20">${fmtMoney(s.plannedProfit)}</td>
+            <td class="px-2 py-2 text-right font-semibold ${s.entered ? 'text-sky-700' : 'text-slate-300'} bg-sky-50/20">${s.entered ? fmtMoney(s.actualProfit) : '-'}</td>
             <td class="px-2 py-2 text-right font-bold ${!s.entered ? 'text-slate-300' : s.profitDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}">${s.entered ? (s.profitDiff >= 0 ? '+' : '') + fmtMoney(s.profitDiff) : '-'}</td>
             <td class="px-2 py-2 text-center">
               ${s.entered
@@ -3239,7 +3246,7 @@ function renderClosingReportModal() {
   const plannedMargin = plannedSales > 0 ? (plannedProfit / plannedSales) * 100 : 0;
 
   return `<div class="fixed inset-0 bg-slate-900/60 flex items-start justify-center overflow-auto p-4" style="z-index:150">
-    <div class="bg-white rounded-xl shadow-2xl w-full my-8" style="max-width:920px">
+    <div class="bg-white rounded-xl shadow-2xl w-full my-8" style="max-width:1120px">
       <div class="p-4 border-b border-slate-200 bg-purple-50/60 rounded-t-xl flex items-center justify-between">
         <div class="flex items-center gap-2 min-w-0">
           <i data-lucide="flag" class="w-5 h-5 text-purple-600 shrink-0"></i>
@@ -3545,7 +3552,7 @@ function renderActualPopup() {
   }).join('');
 
   return `<div class="fixed inset-0 bg-slate-900/60 flex items-start justify-center overflow-auto p-4" style="z-index:150">
-    <div class="bg-white rounded-xl shadow-2xl w-full my-8" style="max-width:920px">
+    <div class="bg-white rounded-xl shadow-2xl w-full my-8" style="max-width:980px">
       <div class="p-4 border-b border-slate-200 bg-purple-50/60 rounded-t-xl flex items-center justify-between">
         <div class="flex items-center gap-2 min-w-0">
           <i data-lucide="package-check" class="w-5 h-5 text-purple-600 shrink-0"></i>
