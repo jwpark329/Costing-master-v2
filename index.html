@@ -687,6 +687,14 @@ const esc = (v) => String(v === null || v === undefined ? '' : v)
 const fmtMoney = (n, digits = 0) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: Math.max(digits, 0) });
 const fmtInt = (n) => Number(n || 0).toLocaleString();
 
+// 출고율 색상 판정: 미달(주황) / 정상(초록, 100~102.9%) / 3%+ 오버쉽(보라, 103% 이상)
+const OVER_SHIP_THRESHOLD = 103;
+function shipRateClass(rate, kind) {
+  if (rate >= OVER_SHIP_THRESHOLD) return kind === 'bg' ? 'bg-fuchsia-50 text-fuchsia-700' : 'text-fuchsia-600 font-bold';
+  if (rate >= 100) return kind === 'bg' ? 'bg-emerald-50 text-emerald-600' : 'text-emerald-600';
+  return kind === 'bg' ? 'bg-amber-50 text-amber-600' : 'text-slate-500';
+}
+
 // ── 입력창용 콤마 포맷 (편집 중엔 원시 숫자, blur 시 000,000.00 형태로 표시) ──
 function fmtInputVal(v, digits = 0) {
   if (v === '' || v === null || v === undefined) return '';
@@ -2608,7 +2616,7 @@ function postRowHtml(g, P) {
     <td class="px-3 py-2.5 border-r border-slate-100 text-slate-600">${esc(g.buyers)}</td>
     <td class="px-2 py-2.5 border-r border-slate-100 text-right">${fmtInt(g.orderQty)}</td>
     <td class="px-2 py-2.5 border-r border-slate-100 text-right font-bold text-blue-700 bg-blue-50/30">${g.a ? fmtInt(g.shippedQty) : '<span class="text-slate-300">-</span>'}</td>
-    <td class="px-2 py-2.5 border-r border-slate-100 text-right ${shipRate > 100.5 ? 'text-red-600 font-bold' : 'text-slate-500'}">${g.a ? shipRate.toFixed(1) + '%' : '-'}</td>
+    <td class="px-2 py-2.5 border-r border-slate-100 text-right ${shipRateClass(shipRate, 'text')}">${g.a ? shipRate.toFixed(1) + '%' : '-'}</td>
     <td class="px-2 py-2.5 border-r border-slate-100 text-right text-slate-500">${fmtMoney(g.plannedSales)}</td>
     <td class="px-2 py-2.5 border-r border-slate-100 text-right font-bold text-emerald-700 bg-emerald-50/20">${g.a ? fmtMoney(g.actualSales) : '<span class="text-slate-300">-</span>'}</td>
     <td class="px-2 py-2.5 border-r border-slate-100 text-right text-amber-700">${g.a && g.fabricPaidVnd ? fmtInt(g.fabricPaidVnd) : '<span class="text-slate-300">-</span>'}</td>
@@ -2737,7 +2745,7 @@ function renderPostKPI() {
     ${filterBar}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
       ${summaryCard('dollar-sign', P.cardSales, fmtMoney(totals.actualSales), P.cardPlanned(fmtMoney(totals.plannedSales)), 'bg-emerald-50 text-emerald-600')}
-      ${summaryCard('target', P.kpiAchieve, achieveRate.toFixed(1) + '%', '', achieveRate >= 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')}
+      ${summaryCard('target', P.kpiAchieve, achieveRate.toFixed(1) + '%', '', Number(achieveRate.toFixed(1)) >= 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')}
       ${summaryCard('trending-up', P.cardProfit, fmtMoney(totals.actualProfit) + ' · ' + actualMargin.toFixed(1) + '%', '', getMarginBadgeClass(actualMargin))}
       ${summaryCard('scale', P.kpiProfitDiff, (profitDiff >= 0 ? '+' : '') + fmtMoney(profitDiff), '', profitDiff >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600')}
     </div>
@@ -2931,7 +2939,7 @@ function renderPostCompare() {
             <td class="px-3 py-2 font-bold text-slate-700">${esc(b.buyer)}</td>
             <td class="px-2 py-2 text-right text-slate-500">${fmtMoney(b.plannedSales)}</td>
             <td class="px-2 py-2 text-right font-semibold text-emerald-700">${fmtMoney(b.actualSales)}</td>
-            <td class="px-2 py-2 text-right"><span class="px-1.5 py-0.5 rounded font-bold ${b.achieveRate >= 100 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}" style="font-size:11px">${b.achieveRate.toFixed(1)}%</span></td>
+            <td class="px-2 py-2 text-right"><span class="px-1.5 py-0.5 rounded font-bold ${Number(b.achieveRate.toFixed(1)) >= 100 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}" style="font-size:11px">${b.achieveRate.toFixed(1)}%</span></td>
             <td class="px-2 py-2 text-right font-bold ${b.profitDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}">${b.profitDiff >= 0 ? '+' : ''}${fmtMoney(b.profitDiff)}</td>
           </tr>`).join('')}
         </tbody>
@@ -3264,7 +3272,7 @@ function renderClosingReportModal() {
       <div class="p-6 space-y-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
           ${summaryCard('package', P.thOrderQty, fmtInt(orderQty) + ' pcs', '', 'bg-slate-100 text-slate-600')}
-          ${summaryCard('truck', P.thShippedQty, a ? fmtInt(shippedQty) + ' pcs' : '-', a ? shipRate.toFixed(1) + '% ' + P.thShipRate : P.statusMissing, a ? (shipRate >= 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600') : 'bg-slate-100 text-slate-400')}
+          ${summaryCard('truck', P.thShippedQty, a ? fmtInt(shippedQty) + ' pcs' : '-', a ? shipRate.toFixed(1) + '% ' + P.thShipRate : P.statusMissing, a ? shipRateClass(shipRate, 'bg') : 'bg-slate-100 text-slate-400')}
           ${summaryCard('dollar-sign', P.cardSales, a ? fmtMoney(actualSales) : '-', P.cardPlanned(fmtMoney(plannedSales)), 'bg-emerald-50 text-emerald-600')}
           ${summaryCard('trending-up', P.cardProfit, a ? fmtMoney(actualProfit) + ' · ' + actualMargin.toFixed(1) + '%' : '-', a ? '' : P.cardPlanned(fmtMoney(plannedProfit) + ' · ' + plannedMargin.toFixed(1) + '%'), a ? getMarginBadgeClass(actualMargin) : 'bg-slate-100 text-slate-400')}
         </div>
