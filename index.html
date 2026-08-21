@@ -3487,10 +3487,10 @@ function renderClosingItemReportModal() {
   const orderQty = allLines.reduce((s, r) => s + r.totalQty, 0);
   const avgFob = orderQty > 0 ? rec.plannedSales / orderQty : 0;
 
-  let shippedQtySum = 0, actualPaidUsdSum = 0;
+  let shippedQtySum = 0, actualPaidUsdSum = 0, actualPaidVndSum = 0;
   const mergedItems = mergedStyleCostItems(styles);
-  const itemPaidUsd = {}; mergedItems.forEach(it => { itemPaidUsd[it.key] = 0; });
-  let otherPaidUsdSum = 0, packingPaidUsdSum = 0;
+  const itemPaidUsd = {}, itemPaidVnd = {}; mergedItems.forEach(it => { itemPaidUsd[it.key] = 0; itemPaidVnd[it.key] = 0; });
+  let otherPaidUsdSum = 0, packingPaidUsdSum = 0, otherPaidVndSum = 0, packingPaidVndSum = 0;
   const memos = [];
 
   styles.forEach(style => {
@@ -3498,14 +3498,22 @@ function renderClosingItemReportModal() {
     if (!a) return;
     shippedQtySum += Number(a.shippedQty) || 0;
     const rate = Number(a.rate) || 0;
+    if (a.items) Object.keys(a.items).forEach(k => {
+      const vnd = Number(a.items[k]) || 0;
+      itemPaidVnd[k] = (itemPaidVnd[k] || 0) + vnd;
+      if (rate > 0) itemPaidUsd[k] = (itemPaidUsd[k] || 0) + vnd / rate;
+    });
+    otherPaidVndSum += Number(a.otherPaidVnd) || 0;
+    packingPaidVndSum += Number(a.packingPaidVnd) || 0;
     if (rate > 0) {
-      if (a.items) Object.keys(a.items).forEach(k => { itemPaidUsd[k] = (itemPaidUsd[k] || 0) + (Number(a.items[k]) || 0) / rate; });
       otherPaidUsdSum += (Number(a.otherPaidVnd) || 0) / rate;
       packingPaidUsdSum += (Number(a.packingPaidVnd) || 0) / rate;
     }
     if (a.memo) memos.push(`${style}: ${a.memo}`);
   });
   Object.values(itemPaidUsd).forEach(v => { actualPaidUsdSum += v; });
+  Object.values(itemPaidVnd).forEach(v => { actualPaidVndSum += v; });
+  actualPaidVndSum += otherPaidVndSum + packingPaidVndSum;
   actualPaidUsdSum += otherPaidUsdSum + packingPaidUsdSum;
 
   const shipRate = orderQty > 0 && rec.entered > 0 ? (shippedQtySum / orderQty) * 100 : 0;
@@ -3592,20 +3600,23 @@ function renderClosingItemReportModal() {
                 <th class="px-3 py-2 font-semibold">${P.thItem}</th>
                 <th class="px-2 py-2 font-semibold text-right">${P.thUnitPlanned}</th>
                 <th class="px-2 py-2 font-semibold text-right">${P.thPlannedTotal}</th>
-                <th class="px-2 py-2 font-semibold text-right">${P.thUsdConv} (${P.tabActual})</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thPaidVnd}</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thUsdConv}</th>
               </tr></thead>
               <tbody class="divide-y divide-slate-100">
                 ${mergedItems.map(it => `<tr class="${it.key === 'cmt' ? 'bg-indigo-50/40' : ''}">
                   <td class="px-3 py-1.5 font-semibold text-slate-700">${it.key === 'cmt' ? '<i data-lucide="scissors" class="w-3 h-3 inline text-indigo-500 mr-1"></i>' : ''}${esc(it.label)}</td>
                   <td class="px-2 py-1.5 text-right text-slate-500">$${it.unitCost.toFixed(3)}</td>
                   <td class="px-2 py-1.5 text-right text-slate-500">${fmtMoney(it.costSum, 2)}</td>
+                  <td class="px-2 py-1.5 text-right ${rec.entered > 0 && itemPaidVnd[it.key] ? 'text-amber-700 font-medium' : 'text-slate-300'}">${rec.entered > 0 && itemPaidVnd[it.key] ? fmtInt(itemPaidVnd[it.key]) + ' ₫' : '-'}</td>
                   <td class="px-2 py-1.5 text-right ${rec.entered > 0 ? 'text-slate-600' : 'text-slate-300'}">${rec.entered > 0 ? fmtMoney(itemPaidUsd[it.key] || 0, 2) : '-'}</td>
                 </tr>`).join('')}
-                ${packingPaidUsdSum > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.packingCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(packingPaidUsdSum, 2)}</td></tr>` : ''}
-                ${otherPaidUsdSum > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.otherCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(otherPaidUsdSum, 2)}</td></tr>` : ''}
+                ${packingPaidVndSum > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.packingCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-amber-700 font-medium">${fmtInt(packingPaidVndSum)} ₫</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(packingPaidUsdSum, 2)}</td></tr>` : ''}
+                ${otherPaidVndSum > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.otherCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-amber-700 font-medium">${fmtInt(otherPaidVndSum)} ₫</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(otherPaidUsdSum, 2)}</td></tr>` : ''}
                 <tr class="bg-slate-50 font-bold border-t-2 border-slate-200">
                   <td class="px-3 py-1.5 text-slate-700">TOTAL</td><td></td>
                   <td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(mergedItems.reduce((s, it) => s + it.costSum, 0), 2)}</td>
+                  <td class="px-2 py-1.5 text-right text-amber-700">${rec.entered > 0 ? fmtInt(actualPaidVndSum) + ' ₫' : '-'}</td>
                   <td class="px-2 py-1.5 text-right text-slate-700">${rec.entered > 0 ? fmtMoney(actualPaidUsdSum, 2) : '-'}</td>
                 </tr>
               </tbody>
