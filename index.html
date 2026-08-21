@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Costing Master — Garment Order & Cost Analysis</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzI1NjNlYiIvPgogIDxyZWN0IHg9IjgiIHk9IjYiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyMCIgcng9IjIiIGZpbGw9IndoaXRlIi8+CiAgPHJlY3QgeD0iMTAiIHk9IjguNSIgd2lkdGg9IjEyIiBoZWlnaHQ9IjQiIHJ4PSIxIiBmaWxsPSIjMjU2M2ViIi8+CiAgPGNpcmNsZSBjeD0iMTEuNiIgY3k9IjE2IiByPSIxLjMiIGZpbGw9IiMyNTYzZWIiLz4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxLjMiIGZpbGw9IiMyNTYzZWIiLz4KICA8Y2lyY2xlIGN4PSIyMC40IiBjeT0iMTYiIHI9IjEuMyIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjExLjYiIGN5PSIyMCIgcj0iMS4zIiBmaWxsPSIjMjU2M2ViIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIyMCIgcj0iMS4zIiBmaWxsPSIjMjU2M2ViIi8+CiAgPGNpcmNsZSBjeD0iMjAuNCIgY3k9IjIwIiByPSIxLjMiIGZpbGw9IiMyNTYzZWIiLz4KICA8Y2lyY2xlIGN4PSIxMS42IiBjeT0iMjQiIHI9IjEuMyIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMjQiIHI9IjEuMyIgZmlsbD0iIzI1NjNlYiIvPgogIDxjaXJjbGUgY3g9IjIwLjQiIGN5PSIyNCIgcj0iMS4zIiBmaWxsPSIjMjU2M2ViIi8+Cjwvc3ZnPgo=">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
@@ -496,7 +497,13 @@ const LANGS = {
       compareByMonth: '월별 추이 비교', compareStyleRank: '스타일 랭킹 (계획 대비 이익 차이 순)', compareOverPct: '집행률', compareDiff: '차이',
       compareCatFabric: '원단', compareCatTrim: '부자재', compareCatCm: 'CM(공임)', compareCatPacking: '완성자재/포장',
       filterLabel: '필터:', filterReset: '초기화', allStyles: '전체 스타일',
-      compareCatSales: '매출 (Sales)', compareCatTotalCost: '합계 (총원가)', compareCatMargin: '최종 마진 (%)'
+      compareCatSales: '매출 (Sales)', compareCatTotalCost: '합계 (총원가)', compareCatMargin: '최종 마진 (%)',
+      viewClosing: '종결보고', closingCriteria: '※ Invoiced 처리된 오더는 전부 대상 (실적 미입력분 포함)', cardClosedStyles: '종결 대상 스타일',
+      closingByBuyer: '바이어별 종결 실적', closingByMonth: '월별 종결 실적', closingStyleDetail: '종결 스타일 상세',
+      closingByStyle: '스타일별 종결 실적', closingByStyleEmpty: '실적이 입력된 스타일이 없습니다.',
+      closingReportTitle: '종결보고서', closingEditBtn: '실적 편집', closingColorSize: '컬러/사이즈별 오더 내역',
+      closingNotEnteredHint: '이 스타일은 아직 사후 실적이 입력되지 않았습니다. 계획 데이터만 표시됩니다.',
+      closingNoData: '종결(출고완료)된 스타일이 없습니다.', closingNoDataHint: '출고율 100% 이상이고 실적이 입력된 스타일이 있으면 여기 표시됩니다.'
     }
   },
   en: {
@@ -573,7 +580,13 @@ const LANGS = {
       compareByMonth: 'Monthly Trend Comparison', compareStyleRank: 'Style Ranking (by profit variance)', compareOverPct: 'Spend %', compareDiff: 'Diff',
       compareCatFabric: 'Fabric', compareCatTrim: 'Trim', compareCatCm: 'CM (Sewing)', compareCatPacking: 'Packing',
       filterLabel: 'Filter:', filterReset: 'Reset', allStyles: 'All styles',
-      compareCatSales: 'Sales', compareCatTotalCost: 'Total Cost', compareCatMargin: 'Final Margin (%)'
+      compareCatSales: 'Sales', compareCatTotalCost: 'Total Cost', compareCatMargin: 'Final Margin (%)',
+      viewClosing: 'Closing Report', closingCriteria: '※ All Invoiced orders included (even without actuals entered yet)', cardClosedStyles: 'Target Styles',
+      closingByBuyer: 'Closed Performance by Buyer', closingByMonth: 'Closed Performance by Month', closingStyleDetail: 'Closed Style Detail',
+      closingByStyle: 'Closed Performance by Style', closingByStyleEmpty: 'No styles with actuals entered yet.',
+      closingReportTitle: 'Closing Report', closingEditBtn: 'Edit Actuals', closingColorSize: 'Order Detail by Color/Size',
+      closingNotEnteredHint: 'Actuals have not been entered for this style yet. Showing planned data only.',
+      closingNoData: 'No fully-shipped (closed) styles yet.', closingNoDataHint: 'Styles with 100%+ shipped and actuals entered will appear here.'
     }
   },
   vi: {
@@ -650,7 +663,13 @@ const LANGS = {
       compareByMonth: 'So sánh xu hướng theo tháng', compareStyleRank: 'Xếp hạng kiểu (theo chênh lệch LN)', compareOverPct: 'Tỷ lệ chi', compareDiff: 'Chênh lệch',
       compareCatFabric: 'Vải', compareCatTrim: 'Phụ liệu', compareCatCm: 'CM (May)', compareCatPacking: 'Đóng gói',
       filterLabel: 'Bộ lọc:', filterReset: 'Đặt lại', allStyles: 'Tất cả kiểu',
-      compareCatSales: 'Doanh thu', compareCatTotalCost: 'Tổng chi phí', compareCatMargin: 'Biên LN cuối (%)'
+      compareCatSales: 'Doanh thu', compareCatTotalCost: 'Tổng chi phí', compareCatMargin: 'Biên LN cuối (%)',
+      viewClosing: 'Báo cáo hoàn tất', closingCriteria: '※ Bao gồm tất cả đơn Invoiced (kể cả chưa nhập thực tế)', cardClosedStyles: 'Kiểu mục tiêu',
+      closingByBuyer: 'KQ hoàn tất theo khách hàng', closingByMonth: 'KQ hoàn tất theo tháng', closingStyleDetail: 'Chi tiết kiểu đã hoàn tất',
+      closingByStyle: 'KQ hoàn tất theo kiểu', closingByStyleEmpty: 'Chưa có kiểu nào được nhập thực tế.',
+      closingReportTitle: 'Báo cáo hoàn tất', closingEditBtn: 'Sửa thực tế', closingColorSize: 'Chi tiết đơn theo Màu/Size',
+      closingNotEnteredHint: 'Kiểu này chưa được nhập số liệu thực tế. Chỉ hiển thị dữ liệu kế hoạch.',
+      closingNoData: 'Chưa có kiểu nào hoàn tất xuất hàng.', closingNoDataHint: 'Kiểu có tỷ lệ xuất ≥100% và đã nhập thực tế sẽ hiện ở đây.'
     }
   }
 };
@@ -696,7 +715,9 @@ const S = {
   post: {
     view: 'list', searchTerm: '', filterTab: 'all', popup: null, chartMetric: 'sales',
     kpiFilter: { year: 'ALL', buyer: 'ALL', item: 'ALL' },
-    compareFilter: { year: 'ALL', buyer: 'ALL', style: 'ALL' }
+    compareFilter: { year: 'ALL', buyer: 'ALL', style: 'ALL' },
+    closingFilter: { year: 'ALL', month: 'ALL', buyer: 'ALL' },
+    closingReportStyle: null
   },
 
   activeTab: 'dashboard',
@@ -2480,24 +2501,24 @@ function computePostData() {
 // ── 연동형(cascading) 필터 옵션 계산: year → buyer → (item|style) 순으로 선택지를 좁혀감 ──
 function postCascadeOptions(filterState, thirdKey) {
   const { doneList } = computePostData();
-  const allYears = [...new Set(doneList.map(g => g.repMonth !== 'TBD' ? g.repMonth.split('-')[0] : null).filter(Boolean))].sort();
-
-  const yearFiltered = filterState.year === 'ALL' ? doneList : doneList.filter(g => g.repMonth !== 'TBD' && g.repMonth.split('-')[0] === filterState.year);
   const buyerSet = new Set();
-  yearFiltered.forEach(g => g.buyerList.forEach(b => buyerSet.add(b)));
+  doneList.forEach(g => g.buyerList.forEach(b => buyerSet.add(b)));
   const buyerOptions = [...buyerSet].sort();
 
-  const buyerFiltered = filterState.buyer === 'ALL' ? yearFiltered : yearFiltered.filter(g => g.buyerList.includes(filterState.buyer));
+  const buyerFiltered = filterState.buyer === 'ALL' ? doneList : doneList.filter(g => g.buyerList.includes(filterState.buyer));
+  const allYears = [...new Set(buyerFiltered.map(g => g.repMonth !== 'TBD' ? g.repMonth.split('-')[0] : null).filter(Boolean))].sort();
+
+  const yearFiltered = filterState.year === 'ALL' ? buyerFiltered : buyerFiltered.filter(g => g.repMonth !== 'TBD' && g.repMonth.split('-')[0] === filterState.year);
   let thirdOptions;
   if (thirdKey === 'item') {
     const itemSet = new Set();
-    buyerFiltered.forEach(g => g.items.forEach(it => itemSet.add(it)));
+    yearFiltered.forEach(g => g.items.forEach(it => itemSet.add(it)));
     thirdOptions = [...itemSet].sort();
   } else {
-    thirdOptions = buyerFiltered.map(g => g.style).sort();
+    thirdOptions = yearFiltered.map(g => g.style).sort();
   }
 
-  let finalList = buyerFiltered;
+  let finalList = yearFiltered;
   if (thirdKey === 'item' && filterState.item !== 'ALL') finalList = finalList.filter(g => g.items.includes(filterState.item));
   if (thirdKey === 'style' && filterState.style !== 'ALL') finalList = finalList.filter(g => g.style === filterState.style);
 
@@ -2678,13 +2699,13 @@ function renderPostFilterBar(kind, allYears, buyerOptions, thirdOptions, thirdLa
   const isFiltered = filter.year !== 'ALL' || filter.buyer !== 'ALL' || filter[thirdLabelKey] !== 'ALL';
   return `<div class="flex flex-wrap items-center gap-2 bg-white rounded-xl border border-slate-200 p-3 shadow-sm">
     <span class="text-xs font-semibold text-slate-500 flex items-center gap-1"><i data-lucide="filter" class="w-3.5 h-3.5"></i> ${P.filterLabel}</span>
-    <select data-action-change="${yearAction}" class="${selectClass}">
-      <option value="ALL" ${filter.year === 'ALL' ? 'selected' : ''}>${Lx.allYears}</option>
-      ${allYears.map(y => `<option value="${y}" ${filter.year === y ? 'selected' : ''}>${Lx.yearFmt(y)}</option>`).join('')}
-    </select>
     <select data-action-change="${buyerAction}" class="${selectClass}">
       <option value="ALL" ${filter.buyer === 'ALL' ? 'selected' : ''}>${Lx.allBuyers}</option>
       ${buyerOptions.map(b => `<option value="${esc(b)}" ${filter.buyer === b ? 'selected' : ''}>${esc(b)}</option>`).join('')}
+    </select>
+    <select data-action-change="${yearAction}" class="${selectClass}">
+      <option value="ALL" ${filter.year === 'ALL' ? 'selected' : ''}>${Lx.allYears}</option>
+      ${allYears.map(y => `<option value="${y}" ${filter.year === y ? 'selected' : ''}>${Lx.yearFmt(y)}</option>`).join('')}
     </select>
     <select data-action-change="${thirdAction}" class="${selectClass}">
       <option value="ALL" ${filter[thirdLabelKey] === 'ALL' ? 'selected' : ''}>${thirdAllLabel}</option>
@@ -2997,6 +3018,328 @@ function renderPostCompare() {
     </div>`;
 }
 
+// ── 종결보고: 출고율 100% 이상(완전 출고)인 종결 스타일을 바이어/월로 분석 ──
+function computePostClosing() {
+  const { list } = computePostData(); // ✅ Invoiced 처리된 건은 실적 입력 여부와 무관하게 전부 종결보고 대상
+
+  const f = S.post.closingFilter;
+  const buyerOptions = [...new Set(list.flatMap(g => g.buyerList))].sort();
+  const buyerFiltered = f.buyer === 'ALL' ? list : list.filter(g => g.buyerList.includes(f.buyer));
+  const allYears = [...new Set(buyerFiltered.map(g => g.repMonth !== 'TBD' ? g.repMonth.split('-')[0] : null).filter(Boolean))].sort();
+  const yearFiltered = f.year === 'ALL' ? buyerFiltered : buyerFiltered.filter(g => g.repMonth !== 'TBD' && g.repMonth.split('-')[0] === f.year);
+  const monthOptions = [...new Set(yearFiltered.map(g => g.repMonth).filter(m => m !== 'TBD'))].sort();
+  const finalList = f.month === 'ALL' ? yearFiltered : yearFiltered.filter(g => g.repMonth === f.month);
+  const enteredList = finalList.filter(g => g.a);
+
+  const totals = {
+    count: finalList.length,
+    entered: enteredList.length,
+    plannedSales: finalList.reduce((s, g) => s + g.plannedSales, 0),
+    actualSales: finalList.reduce((s, g) => s + g.actualSales, 0), // 미입력 건은 g.actualSales가 0이라 자연히 반영 안 됨
+    plannedProfit: finalList.reduce((s, g) => s + g.plannedProfit, 0),
+    actualProfit: finalList.reduce((s, g) => s + g.actualProfit, 0)
+  };
+  const achieveRate = totals.plannedSales > 0 ? (totals.actualSales / totals.plannedSales) * 100 : 0;
+  const profitDiff = totals.actualProfit - totals.plannedProfit;
+
+  const buyerMap = {};
+  finalList.forEach(g => {
+    const key = g.buyers || '(no buyer)';
+    if (!buyerMap[key]) buyerMap[key] = { buyer: key, plannedSales: 0, actualSales: 0 };
+    buyerMap[key].plannedSales += g.plannedSales; buyerMap[key].actualSales += g.actualSales;
+  });
+  const byBuyer = Object.values(buyerMap).sort((a, b) => b.plannedSales - a.plannedSales);
+
+  const monthMap = {};
+  finalList.forEach(g => {
+    const mk = g.repMonth;
+    if (mk === 'TBD') return;
+    if (!monthMap[mk]) monthMap[mk] = { month: mk, plannedSales: 0, actualSales: 0 };
+    monthMap[mk].plannedSales += g.plannedSales; monthMap[mk].actualSales += g.actualSales;
+  });
+  const byMonth = Object.values(monthMap).sort((a, b) => a.month.localeCompare(b.month));
+
+  const styleList = finalList.map(g => ({
+    style: g.style, buyers: g.buyers, month: g.repMonth, entered: !!g.a,
+    plannedSales: g.plannedSales, actualSales: g.actualSales,
+    plannedProfit: g.plannedProfit, actualProfit: g.actualProfit,
+    achieveRate: g.plannedSales > 0 ? (g.actualSales / g.plannedSales) * 100 : 0,
+    profitDiff: g.actualProfit - g.plannedProfit
+  })).sort((a, b) => (a.month === 'TBD' ? '9999' : a.month).localeCompare(b.month === 'TBD' ? '9999' : b.month) || a.style.localeCompare(b.style));
+
+  // 스타일별 그래프용 — 실적 입력된 것만 (미입력은 실제값이 항상 0이라 그래프에 의미가 없음)
+  const byStyle = styleList.filter(s => s.entered).map(s => ({ style: s.style, plannedSales: s.plannedSales, actualSales: s.actualSales }));
+
+  return { totals, achieveRate, profitDiff, byBuyer, byMonth, byStyle, styleList, allYears, buyerOptions, monthOptions };
+}
+
+function twoBarChart(data, keyLabel, formatFn, plannedLabel, actualLabel) {
+  if (data.length === 0) return '';
+  const max = Math.max(...data.map(d => Math.max(d.plannedSales, d.actualSales)), 1);
+  return `<div class="flex items-end gap-3 overflow-x-auto pb-1" style="height:170px">
+    ${data.map(d => {
+      const pH = Math.max((d.plannedSales / max) * 100, 2);
+      const aH = Math.max((d.actualSales / max) * 100, 2);
+      return `<div class="flex flex-col items-center justify-end h-full shrink-0" style="min-width:64px">
+        <div class="flex items-end gap-1 h-full">
+          <div class="flex flex-col items-center justify-end h-full" style="width:20px" title="${esc(plannedLabel)}: ${formatFn(d.plannedSales)}"><div class="w-full bg-slate-300 rounded-t" style="height:${pH}%"></div></div>
+          <div class="flex flex-col items-center justify-end h-full" style="width:20px" title="${esc(actualLabel)}: ${formatFn(d.actualSales)}"><div class="w-full bg-purple-500 rounded-t" style="height:${aH}%"></div></div>
+        </div>
+        <span class="text-slate-500 mt-1.5 border-t border-slate-200 w-full text-center pt-1 truncate" style="font-size:10px" title="${esc(d[keyLabel])}">${esc(d[keyLabel])}</span>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class="flex items-center gap-4 justify-center mt-2"><span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm bg-slate-300 inline-block"></span>${plannedLabel}</span><span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm bg-purple-500 inline-block"></span>${actualLabel}</span></div>`;
+}
+
+function renderPostClosing() {
+  const Lx = L(); const P = Lx.post;
+  const { totals, achieveRate, profitDiff, byBuyer, byMonth, byStyle, styleList, allYears, buyerOptions, monthOptions } = computePostClosing();
+  const f = S.post.closingFilter;
+  const selectClass = 'text-xs border border-slate-200 rounded px-2 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-1 focus:ring-purple-500 shadow-sm cursor-pointer';
+  const isFiltered = f.year !== 'ALL' || f.month !== 'ALL' || f.buyer !== 'ALL';
+
+  const filterBar = `<div class="flex flex-wrap items-center gap-2 bg-white rounded-xl border border-slate-200 p-3 shadow-sm">
+    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1"><i data-lucide="filter" class="w-3.5 h-3.5"></i> ${P.filterLabel}</span>
+    <select data-action-change="postClosingBuyer" class="${selectClass}">
+      <option value="ALL" ${f.buyer === 'ALL' ? 'selected' : ''}>${Lx.allBuyers}</option>
+      ${buyerOptions.map(b => `<option value="${esc(b)}" ${f.buyer === b ? 'selected' : ''}>${esc(b)}</option>`).join('')}
+    </select>
+    <select data-action-change="postClosingYear" class="${selectClass}">
+      <option value="ALL" ${f.year === 'ALL' ? 'selected' : ''}>${Lx.allYears}</option>
+      ${allYears.map(y => `<option value="${y}" ${f.year === y ? 'selected' : ''}>${Lx.yearFmt(y)}</option>`).join('')}
+    </select>
+    <select data-action-change="postClosingMonth" class="${selectClass}">
+      <option value="ALL" ${f.month === 'ALL' ? 'selected' : ''}>${Lx.allMonths}</option>
+      ${monthOptions.map(m => `<option value="${m}" ${f.month === m ? 'selected' : ''}>${esc(m)}</option>`).join('')}
+    </select>
+    ${isFiltered ? `<button data-action="postClosingFilterReset" class="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="x" class="w-3.5 h-3.5"></i> ${P.filterReset}</button>` : ''}
+    <span class="text-xs text-slate-400 ml-auto">${P.closingCriteria}</span>
+  </div>`;
+
+  if (totals.count === 0) {
+    return `${filterBar}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-16 text-center text-slate-400">
+      <i data-lucide="flag" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+      <p class="text-sm font-medium">${P.closingNoData}</p>
+      <p class="text-xs mt-1">${P.closingNoDataHint}</p>
+    </div>`;
+  }
+
+  const actualMargin = totals.actualSales > 0 ? (totals.actualProfit / totals.actualSales) * 100 : 0;
+
+  return `
+    ${filterBar}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      ${summaryCard('flag', P.cardClosedStyles, totals.count + (S.lang === 'ko' ? '개' : ''), P.cardDone(totals.entered, totals.count > 0 ? Math.round((totals.entered / totals.count) * 100) : 0), 'bg-purple-50 text-purple-600')}
+      ${summaryCard('dollar-sign', P.cardSales, fmtMoney(totals.actualSales), P.cardPlanned(fmtMoney(totals.plannedSales)) + ' · ' + achieveRate.toFixed(1) + '%', 'bg-emerald-50 text-emerald-600')}
+      ${summaryCard('trending-up', P.cardProfit, fmtMoney(totals.actualProfit) + ' · ' + actualMargin.toFixed(1) + '%', '', getMarginBadgeClass(actualMargin))}
+      ${summaryCard('scale', P.kpiProfitDiff, (profitDiff >= 0 ? '+' : '') + fmtMoney(profitDiff), '', profitDiff >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600')}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden lg:col-span-1">
+        <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-slate-500"></i><h3 class="font-semibold text-slate-800 text-sm">${P.closingByBuyer}</h3></div>
+        <div class="p-4">${twoBarChart(byBuyer, 'buyer', (v) => fmtMoney(v), P.tabPlanned, P.tabActual) || `<p class="text-center text-slate-400 text-sm py-6">${Lx.noData}</p>`}</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden lg:col-span-2">
+        <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2"><i data-lucide="shirt" class="w-4 h-4 text-slate-500"></i><h3 class="font-semibold text-slate-800 text-sm">${P.closingByStyle}</h3></div>
+        <div class="p-4">${twoBarChart(byStyle, 'style', (v) => fmtMoney(v), P.tabPlanned, P.tabActual) || `<p class="text-center text-slate-400 text-sm py-6">${P.closingByStyleEmpty}</p>`}</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden lg:col-span-1">
+        <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i><h3 class="font-semibold text-slate-800 text-sm">${P.closingByMonth}</h3></div>
+        <div class="p-4">${twoBarChart(byMonth, 'month', (v) => fmtMoney(v), P.tabPlanned, P.tabActual) || `<p class="text-center text-slate-400 text-sm py-6">${Lx.noData}</p>`}</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2"><i data-lucide="list" class="w-4 h-4 text-slate-500"></i><h3 class="font-semibold text-slate-800 text-sm">${P.closingStyleDetail}</h3></div>
+        <span class="text-xs text-slate-400">${P.cardDone(totals.entered, totals.count > 0 ? Math.round((totals.entered / totals.count) * 100) : 0)}</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-xs text-left border-collapse">
+        <thead class="text-slate-500 bg-slate-50 uppercase" style="font-size:10px"><tr>
+          <th class="px-3 py-2 font-semibold">${P.thStyle}</th>
+          <th class="px-3 py-2 font-semibold">${P.thBuyer}</th>
+          <th class="px-2 py-2 font-semibold">월</th>
+          <th class="px-2 py-2 font-semibold text-right">${P.thPlannedSales}</th>
+          <th class="px-2 py-2 font-semibold text-right">${P.thActualSales}</th>
+          <th class="px-2 py-2 font-semibold text-right">${P.kpiAchieve}</th>
+          <th class="px-2 py-2 font-semibold text-right">${P.compareDiff}</th>
+          <th class="px-2 py-2 font-semibold text-center">${P.thStatus}</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100">
+          ${styleList.map(s => `<tr class="hover:bg-slate-50 cursor-pointer ${!s.entered ? 'opacity-70' : ''}" data-action="openClosingReport" data-id="${esc(s.style)}">
+            <td class="px-3 py-2 font-bold text-slate-700">${esc(s.style)}</td>
+            <td class="px-3 py-2 text-slate-500">${esc(s.buyers)}</td>
+            <td class="px-2 py-2 text-slate-500">${esc(s.month)}</td>
+            <td class="px-2 py-2 text-right text-slate-500">${fmtMoney(s.plannedSales)}</td>
+            <td class="px-2 py-2 text-right font-semibold ${s.entered ? 'text-emerald-700' : 'text-slate-300'}">${s.entered ? fmtMoney(s.actualSales) : '-'}</td>
+            <td class="px-2 py-2 text-right">${s.entered ? `<span class="px-1.5 py-0.5 rounded font-bold ${s.achieveRate >= 100 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}" style="font-size:11px">${s.achieveRate.toFixed(1)}%</span>` : '-'}</td>
+            <td class="px-2 py-2 text-right font-bold ${!s.entered ? 'text-slate-300' : s.profitDiff >= 0 ? 'text-emerald-600' : 'text-red-600'}">${s.entered ? (s.profitDiff >= 0 ? '+' : '') + fmtMoney(s.profitDiff) : '-'}</td>
+            <td class="px-2 py-2 text-center">
+              ${s.entered
+                ? `<span class="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 font-bold" style="font-size:10px"><i data-lucide="check" class="w-3 h-3"></i> ${P.statusDone}</span>`
+                : `<span class="inline-flex items-center gap-1 text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5 font-medium" style="font-size:10px">${P.statusMissing}</span>`}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+}
+
+
+// ── 종결보고서 (읽기 전용 스타일 리포트): 컬러/사이즈별 오더내역 + 출고 + 비용 내역 ──
+function styleOrderLines(style) {
+  return S.data.filter(r => String(r.style || '(스타일 없음)') === style).map(calculateRowCosts)
+    .sort((a, b) => String(a.color || '').localeCompare(String(b.color || '')));
+}
+
+function openClosingReport(style) {
+  S.post.closingReportStyle = style;
+  render();
+}
+function closeClosingReport() { S.post.closingReportStyle = null; render(); }
+
+function renderClosingReportModal() {
+  const style = S.post.closingReportStyle;
+  if (!style) return '';
+  const Lx = L(); const P = Lx.post;
+  const lines = styleOrderLines(style);
+  if (lines.length === 0) return '';
+  const buyers = [...new Set(lines.map(r => r.buyer).filter(Boolean))].join(', ');
+  const orderQty = lines.reduce((s, r) => s + r.totalQty, 0);
+  const plannedSales = lines.reduce((s, r) => s + r.amount, 0);
+  const avgFob = orderQty > 0 ? plannedSales / orderQty : 0;
+  const a = S.actuals[style] || null;
+  const shippedQty = a ? Number(a.shippedQty) || 0 : 0;
+  const rate = a ? Number(a.rate) || 0 : 0;
+  const autoSales = shippedQty * avgFob;
+  const actualSales = a ? ((a.actualSalesUsd === '' || a.actualSalesUsd == null) ? autoSales : Number(a.actualSalesUsd) || 0) : 0;
+  const shipRate = orderQty > 0 && a ? (shippedQty / orderQty) * 100 : 0;
+
+  const items = styleCostItems(style);
+  let paidVnd = 0;
+  const itemRows = items.map(it => {
+    const paid = a && a.items ? Number(a.items[it.key]) || 0 : 0;
+    paidVnd += paid;
+    const paidUsd = rate > 0 ? paid / rate : 0;
+    return { ...it, paid, paidUsd };
+  });
+  const otherPaidVnd = a ? Number(a.otherPaidVnd) || 0 : 0;
+  const packingPaidVnd = a ? Number(a.packingPaidVnd) || 0 : 0;
+  paidVnd += otherPaidVnd + packingPaidVnd;
+  const paidUsd = rate > 0 ? paidVnd / rate : 0;
+  const actualProfit = a ? actualSales - paidUsd : 0;
+  const plannedFabricUsd = lines.reduce((s, r) => s + r.totalFabricCost * r.totalQty, 0);
+  const plannedTrimUsd = lines.reduce((s, r) => s + r.totalTrimCost * r.totalQty, 0);
+  const cmtTotal = lines.reduce((s, r) => s + (Number(r.cmt) || 0) * r.totalQty, 0);
+  const plannedProfit = plannedSales - plannedFabricUsd - plannedTrimUsd - cmtTotal;
+  const actualMargin = actualSales > 0 ? (actualProfit / actualSales) * 100 : 0;
+  const plannedMargin = plannedSales > 0 ? (plannedProfit / plannedSales) * 100 : 0;
+
+  return `<div class="fixed inset-0 bg-slate-900/60 flex items-start justify-center overflow-auto p-4" style="z-index:150">
+    <div class="bg-white rounded-xl shadow-2xl w-full my-8" style="max-width:920px">
+      <div class="p-4 border-b border-slate-200 bg-purple-50/60 rounded-t-xl flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <i data-lucide="flag" class="w-5 h-5 text-purple-600 shrink-0"></i>
+          <div class="min-w-0">
+            <h2 class="font-bold text-slate-800 truncate">${esc(style)} <span class="font-normal text-slate-400 text-sm">${P.closingReportTitle}</span></h2>
+            <p class="text-xs text-slate-500 truncate">${esc(buyers)} · ${lines.length} lines · ${P.popupOrderPrefix}${fmtInt(orderQty)} pcs · avg FOB ${fmtMoney(avgFob, 2)}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button data-action="editFromReport" data-id="${esc(style)}" class="flex items-center gap-1.5 text-xs font-bold text-purple-700 bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition-colors"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> ${P.closingEditBtn}</button>
+          <button data-action="closeClosingReport" class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          ${summaryCard('package', P.thOrderQty, fmtInt(orderQty) + ' pcs', '', 'bg-slate-100 text-slate-600')}
+          ${summaryCard('truck', P.thShippedQty, a ? fmtInt(shippedQty) + ' pcs' : '-', a ? shipRate.toFixed(1) + '% ' + P.thShipRate : P.statusMissing, a ? (shipRate >= 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600') : 'bg-slate-100 text-slate-400')}
+          ${summaryCard('dollar-sign', P.cardSales, a ? fmtMoney(actualSales) : '-', P.cardPlanned(fmtMoney(plannedSales)), 'bg-emerald-50 text-emerald-600')}
+          ${summaryCard('trending-up', P.cardProfit, a ? fmtMoney(actualProfit) + ' · ' + actualMargin.toFixed(1) + '%' : '-', a ? '' : P.cardPlanned(fmtMoney(plannedProfit) + ' · ' + plannedMargin.toFixed(1) + '%'), a ? getMarginBadgeClass(actualMargin) : 'bg-slate-100 text-slate-400')}
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs font-bold text-slate-600 flex items-center gap-1.5"><i data-lucide="palette" class="w-3.5 h-3.5"></i> ${P.closingColorSize}</p>
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="text-slate-500 bg-slate-50 uppercase" style="font-size:10px"><tr>
+                <th class="px-3 py-2 font-semibold">PO</th>
+                <th class="px-3 py-2 font-semibold">Color</th>
+                <th class="px-2 py-2 font-semibold text-right">S</th>
+                <th class="px-2 py-2 font-semibold text-right">M</th>
+                <th class="px-2 py-2 font-semibold text-right">L</th>
+                <th class="px-2 py-2 font-semibold text-right">XL</th>
+                <th class="px-2 py-2 font-semibold text-right">XXL</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thOrderQty}</th>
+                <th class="px-2 py-2 font-semibold">Delivery</th>
+              </tr></thead>
+              <tbody class="divide-y divide-slate-100">
+                ${lines.map(r => `<tr>
+                  <td class="px-3 py-1.5 text-slate-600">${esc(r.po)}</td>
+                  <td class="px-3 py-1.5 font-semibold text-slate-700">${esc(r.color)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtInt(r.s)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtInt(r.m)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtInt(r.l)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtInt(r.xl)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtInt(r.xxl)}</td>
+                  <td class="px-2 py-1.5 text-right font-bold text-blue-700">${fmtInt(r.totalQty)}</td>
+                  <td class="px-2 py-1.5 text-slate-500">${esc(r.delivery)}</td>
+                </tr>`).join('')}
+                <tr class="bg-slate-50 font-bold border-t-2 border-slate-200">
+                  <td colspan="7" class="px-3 py-1.5 text-right text-slate-600">TOTAL</td>
+                  <td class="px-2 py-1.5 text-right text-blue-700">${fmtInt(orderQty)}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs font-bold text-amber-700 flex items-center gap-1.5"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> ${P.popupPaidTitle}</p>
+          ${items.length > 0 ? `
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="text-slate-500 bg-slate-50 uppercase" style="font-size:10px"><tr>
+                <th class="px-3 py-2 font-semibold">${P.thItem}</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thUnitPlanned}</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thPlannedTotal}</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thPaidVnd}</th>
+                <th class="px-2 py-2 font-semibold text-right">${P.thUsdConv}</th>
+              </tr></thead>
+              <tbody class="divide-y divide-slate-100">
+                ${itemRows.map(it => `<tr class="${it.key === 'cmt' ? 'bg-indigo-50/40' : ''}">
+                  <td class="px-3 py-1.5 font-semibold text-slate-700">${it.key === 'cmt' ? '<i data-lucide="scissors" class="w-3 h-3 inline text-indigo-500 mr-1"></i>' : ''}${esc(it.label)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">$${it.unitCost.toFixed(3)}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-500">${fmtMoney(it.costSum, 2)}</td>
+                  <td class="px-2 py-1.5 text-right ${a ? 'text-amber-700 font-medium' : 'text-slate-300'}">${a && it.paid ? fmtInt(it.paid) + ' ₫' : '-'}</td>
+                  <td class="px-2 py-1.5 text-right ${a ? 'text-slate-600' : 'text-slate-300'}">${a && it.paid ? fmtMoney(it.paidUsd, 2) : '-'}</td>
+                </tr>`).join('')}
+                ${packingPaidVnd > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.packingCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-amber-700 font-medium">${fmtInt(packingPaidVnd)} ₫</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(rate > 0 ? packingPaidVnd / rate : 0, 2)}</td></tr>` : ''}
+                ${otherPaidVnd > 0 ? `<tr><td class="px-3 py-1.5 font-semibold text-slate-700">${esc(P.otherCost.replace(' (₫)', ''))}</td><td class="px-2 py-1.5 text-right text-slate-300">N/A</td><td class="px-2 py-1.5 text-right text-slate-300">-</td><td class="px-2 py-1.5 text-right text-amber-700 font-medium">${fmtInt(otherPaidVnd)} ₫</td><td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(rate > 0 ? otherPaidVnd / rate : 0, 2)}</td></tr>` : ''}
+                <tr class="bg-slate-50 font-bold border-t-2 border-slate-200">
+                  <td class="px-3 py-1.5 text-slate-700">TOTAL</td><td></td>
+                  <td class="px-2 py-1.5 text-right text-slate-600">${fmtMoney(plannedFabricUsd + plannedTrimUsd + cmtTotal, 2)}</td>
+                  <td class="px-2 py-1.5 text-right text-amber-700">${a ? fmtInt(paidVnd) + ' ₫' : '-'}</td>
+                  <td class="px-2 py-1.5 text-right text-slate-700">${a ? fmtMoney(paidUsd, 2) : '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>` : `<p class="text-xs text-slate-400 italic px-1">${P.noItems}</p>`}
+        </div>
+
+        ${a && a.memo ? `<div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs"><span class="font-bold text-slate-600">${P.memoLabel}:</span> <span class="text-slate-600">${esc(a.memo)}</span></div>` : ''}
+        ${!a ? `<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> ${P.closingNotEnteredHint}</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+
 function renderPostMode() {
   const Lx = L(); const P = Lx.post;
 
@@ -3004,13 +3347,14 @@ function renderPostMode() {
   <div class="flex-1 overflow-auto space-y-4 pb-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="font-semibold text-slate-800 flex items-center gap-2"><i data-lucide="package-check" class="w-5 h-5 text-purple-600"></i> ${P.pageTitle} <span class="text-xs font-normal text-slate-400">${P.invoicedOnly}</span></h2>
-      <div class="flex gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+      <div class="flex gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
         <button data-action="postView" data-val="list" class="flex items-center gap-1.5 px-4 py-1.5 rounded-md font-medium text-xs transition-all duration-200 ${S.post.view === 'list' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"><i data-lucide="list" class="w-3.5 h-3.5"></i> ${P.viewList}</button>
         <button data-action="postView" data-val="kpi" class="flex items-center gap-1.5 px-4 py-1.5 rounded-md font-medium text-xs transition-all duration-200 ${S.post.view === 'kpi' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> ${P.viewKpi}</button>
         <button data-action="postView" data-val="compare" class="flex items-center gap-1.5 px-4 py-1.5 rounded-md font-medium text-xs transition-all duration-200 ${S.post.view === 'compare' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"><i data-lucide="git-compare-arrows" class="w-3.5 h-3.5"></i> ${P.viewCompare}</button>
+        <button data-action="postView" data-val="closing" class="flex items-center gap-1.5 px-4 py-1.5 rounded-md font-medium text-xs transition-all duration-200 ${S.post.view === 'closing' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"><i data-lucide="flag" class="w-3.5 h-3.5"></i> ${P.viewClosing}</button>
       </div>
     </div>
-    ${S.post.view === 'kpi' ? renderPostKPI() : S.post.view === 'compare' ? renderPostCompare() : renderPostList()}
+    ${S.post.view === 'kpi' ? renderPostKPI() : S.post.view === 'compare' ? renderPostCompare() : S.post.view === 'closing' ? renderPostClosing() : renderPostList()}
   </div>`;
 }
 
@@ -3382,6 +3726,7 @@ function buildAppHtml() {
     ${CM ? renderContractModal() : ''}
     ${S.showSettingsModal ? renderSettingsModal() : ''}
     ${S.post.popup ? renderActualPopup() : ''}
+    ${S.post.closingReportStyle ? renderClosingReportModal() : ''}
   </div>`;
 }
 
@@ -3579,6 +3924,7 @@ function handleClick(e) {
     case 'postChartMetric': S.post.chartMetric = val; render(); break;
     case 'postKpiFilterReset': S.post.kpiFilter = { year: 'ALL', buyer: 'ALL', item: 'ALL' }; render(); break;
     case 'postCompareFilterReset': S.post.compareFilter = { year: 'ALL', buyer: 'ALL', style: 'ALL' }; render(); break;
+    case 'postClosingFilterReset': S.post.closingFilter = { year: 'ALL', month: 'ALL', buyer: 'ALL' }; render(); break;
     case 'openActual': openActual(id); break;
     case 'closeActual': S.post.popup = null; render(); break;
     case 'saveActualBtn': saveActualFromPopup(); break;
@@ -3590,6 +3936,9 @@ function handleClick(e) {
       }
       break;
     }
+    case 'openClosingReport': openClosingReport(id); break;
+    case 'closeClosingReport': closeClosingReport(); break;
+    case 'editFromReport': S.post.closingReportStyle = null; openActual(id); break;
     case 'toggleItemBreakdown': {
       const p = S.post.popup;
       if (!p) break;
@@ -3656,12 +4005,15 @@ function handleChange(e) {
     render(); return;
   }
   // 사후 실적 KPI / 비교 탭 — 연동형(cascading) 필터: 연도 바꾸면 바이어/항목·스타일 초기화, 바이어 바꾸면 항목·스타일 초기화
-  if (el.dataset.actionChange === 'postKpiYear') { S.post.kpiFilter = { year: el.value, buyer: 'ALL', item: 'ALL' }; render(); return; }
-  if (el.dataset.actionChange === 'postKpiBuyer') { S.post.kpiFilter.buyer = el.value; S.post.kpiFilter.item = 'ALL'; render(); return; }
+  if (el.dataset.actionChange === 'postKpiBuyer') { S.post.kpiFilter = { buyer: el.value, year: 'ALL', item: 'ALL' }; render(); return; }
+  if (el.dataset.actionChange === 'postKpiYear') { S.post.kpiFilter.year = el.value; S.post.kpiFilter.item = 'ALL'; render(); return; }
   if (el.dataset.actionChange === 'postKpiItem') { S.post.kpiFilter.item = el.value; render(); return; }
-  if (el.dataset.actionChange === 'postCompareYear') { S.post.compareFilter = { year: el.value, buyer: 'ALL', style: 'ALL' }; render(); return; }
-  if (el.dataset.actionChange === 'postCompareBuyer') { S.post.compareFilter.buyer = el.value; S.post.compareFilter.style = 'ALL'; render(); return; }
+  if (el.dataset.actionChange === 'postCompareBuyer') { S.post.compareFilter = { buyer: el.value, year: 'ALL', style: 'ALL' }; render(); return; }
+  if (el.dataset.actionChange === 'postCompareYear') { S.post.compareFilter.year = el.value; S.post.compareFilter.style = 'ALL'; render(); return; }
   if (el.dataset.actionChange === 'postCompareStyle') { S.post.compareFilter.style = el.value; render(); return; }
+  if (el.dataset.actionChange === 'postClosingBuyer') { S.post.closingFilter = { buyer: el.value, year: 'ALL', month: 'ALL' }; render(); return; }
+  if (el.dataset.actionChange === 'postClosingYear') { S.post.closingFilter.year = el.value; S.post.closingFilter.month = 'ALL'; render(); return; }
+  if (el.dataset.actionChange === 'postClosingMonth') { S.post.closingFilter.month = el.value; render(); return; }
   // 계약서: 공급처 선택
   if (el.dataset.actionChange === 'cmSelectSupplier') {
     CM.supplierId = el.value;
