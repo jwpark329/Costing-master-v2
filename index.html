@@ -1792,7 +1792,7 @@ function handleImportCSVFile(file) {
 // ============================================================================
 // 7. SETTINGS MODAL (거래처 / 바이어 관리)
 // ============================================================================
-const emptySupplier = { type: '원단', nameVN: '', nameEN: '', address: '', taxCode: '', tel: '', rep: '', position: '', account: '', bank: '' };
+const emptySupplier = { type: '원단', nameVN: '', nameEN: '', address: '', taxCode: '', tel: '', rep: '', position: '', account: '', bank: '', email: '', emailCc: '' };
 let supplierPanelState = { editingId: null, form: { ...emptySupplier } };
 let buyerPanelState = { newName: '', editingId: null, editName: '', aliasDraft: {}, mergeTarget: {} };
 
@@ -1830,6 +1830,8 @@ function renderSupplierPanel() {
         <input id="supForm_position" class="${inputClass}" placeholder="직위 (Position)" value="${esc(form.position)}" />
         <input id="supForm_account" class="${inputClass}" placeholder="계좌번호 (Banking account no.)" value="${esc(form.account)}" />
         <input id="supForm_bank" class="${inputClass}" placeholder="은행 (At bank)" value="${esc(form.bank)}" />
+        <input id="supForm_email" class="${inputClass}" placeholder="📧 받는 사람 이메일 (여러 명은 ; 로 구분)" value="${esc(form.email || '')}" />
+        <input id="supForm_emailCc" class="${inputClass}" placeholder="📧 참조(CC) 이메일" value="${esc(form.emailCc || '')}" />
       </div>
       <div class="flex justify-end gap-2 pt-1">
         <button data-action="supCancel" class="text-xs font-medium px-3 py-1.5 rounded-lg border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">${Lx.cancel}</button>
@@ -1846,6 +1848,7 @@ function renderSupplierPanel() {
           ${sup.nameVN && sup.nameVN !== sup.nameEN ? `<p class="text-xs text-slate-500 mt-1 truncate">${esc(sup.nameVN)}</p>` : ''}
           ${sup.address ? `<p class="text-xs text-slate-400 truncate">${esc(sup.address)}</p>` : ''}
           <p class="text-xs text-slate-400">${sup.taxCode ? 'Tax: ' + esc(sup.taxCode) + ' · ' : ''}${esc(sup.rep)}${sup.tel ? ' · ' + esc(sup.tel) : ''}</p>
+          ${sup.email ? `<p class="text-xs text-emerald-600 truncate">📧 ${esc(sup.email)}${sup.emailCc ? ' · CC ' + esc(sup.emailCc) : ''}</p>` : ''}
         </div>
         <div class="flex gap-1 shrink-0">
           <button data-action="supEdit" data-id="${esc(sup.id)}" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="수정"><i data-lucide="pencil" class="w-4 h-4"></i></button>
@@ -1867,7 +1870,9 @@ function supplierFormRead() {
     rep: document.getElementById('supForm_rep')?.value ?? '',
     position: document.getElementById('supForm_position')?.value ?? '',
     account: document.getElementById('supForm_account')?.value ?? '',
-    bank: document.getElementById('supForm_bank')?.value ?? ''
+    bank: document.getElementById('supForm_bank')?.value ?? '',
+    email: document.getElementById('supForm_email')?.value.trim() ?? '',
+    emailCc: document.getElementById('supForm_emailCc')?.value.trim() ?? ''
   };
 }
 
@@ -1971,7 +1976,7 @@ function openContractModal(initialIds) {
     showSelector: false,
     contractNo: `FB-${dateCode}-001`, contractDate: todayStr, rate: 26267, unit: 'YDS', vatPercent: 8, deliveryDeadline: todayStr,
     poNo: `TR-${dateCode}-001`, poOrderDate: todayStr, poDeliveryDate: '', poBuyerName: '', poManagerName: '',
-    supplierId: '', seller: { ...emptySupplier }, buyerInfo: { ...S.myCompany }, lines: [], isExporting: false
+    supplierId: '', seller: { ...emptySupplier }, buyerInfo: { ...S.myCompany }, lines: [], isExporting: false, mail: null
   };
   pickDefaultSupplier();
   regenerateLines();
@@ -2251,6 +2256,7 @@ function renderContractModal() {
           <div class="flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i><h2 class="font-semibold text-slate-800">${CM.docType === 'fabric' ? Lx.docFabricTitle : Lx.docTrimTitle}</h2></div>
           <div class="flex items-center gap-2">
             <button data-action="cmDownloadHtml" class="flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors" title="문서를 HTML 파일로 저장"><i data-lucide="download" class="w-4 h-4"></i> 파일</button>
+            <button data-action="cmOpenMail" class="flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm bg-emerald-600 text-white hover:bg-emerald-700" title="PDF를 첨부한 Outlook 새 메일 만들기"><i data-lucide="mail" class="w-4 h-4"></i> 메일 발송</button>
             <button data-action="cmExportPdf" ${CM.isExporting ? 'disabled' : ''} class="flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-lg transition-colors shadow-sm ${CM.isExporting ? 'bg-slate-400 text-white cursor-wait' : 'bg-blue-600 text-white hover:bg-blue-700'}" title="인쇄창이 열립니다. 대상(Destination)에서 'PDF로 저장'을 선택하세요.">
               ${CM.isExporting ? `<i data-lucide="rotate-ccw" class="w-4 h-4 animate-spin"></i> 여는 중...` : `<i data-lucide="printer" class="w-4 h-4"></i> ${Lx.printPdf}`}
             </button>
@@ -2296,6 +2302,7 @@ function renderContractModal() {
       </div>` : ''}
       ${CM.docType === 'fabric' ? fabricContractBodyHtml(Lx) : trimPoBodyHtml(Lx)}
     </div>
+    ${renderMailDialog()}
   </div>`;
 }
 
@@ -2372,6 +2379,207 @@ function handleDownloadHtml() {
   const link = document.createElement('a');
   link.href = url; link.download = built.docTitle + '.html'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+
+// ============================================================================
+// 8.1 계약서/발주서 → PDF → Outlook 새 메일(.eml, PDF 첨부)
+//     - 서버 없이 브라우저에서 PDF 생성 (html2pdf.js, 숨김 iframe에서 인쇄용 HTML 렌더링)
+//     - X-Unsent:1 .eml → Outlook(Classic)에서 '보내지 않은 새 메일' 창으로 열림
+//     - 공급처별 받는사람/CC는 거래처 설정(email, emailCc)에 저장
+// ============================================================================
+const HTML2PDF_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+
+function cmSupplierName() { return (CM.seller.nameEN || CM.seller.nameVN || 'SUPPLIER').trim(); }
+function cmDocNo() { return CM.docType === 'trim' ? (CM.poNo || 'PO') : (CM.contractNo || 'CONTRACT'); }
+function cmStyles() { return [...new Set(CM.lines.map(l => l.style).filter(Boolean))]; }
+function mailSafeName(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w\-.]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 120) || 'document'; }
+
+function defaultMailDraft() {
+  const isTrim = CM.docType === 'trim';
+  const docLabel = isTrim ? 'Purchase Order' : 'Fabric Contract';
+  const styles = cmStyles();
+  const styleTxt = styles.length ? ' - ' + styles.slice(0, 3).join(', ') + (styles.length > 3 ? ` +${styles.length - 3}` : '') : '';
+  const me = S.myCompany.nameEN || 'UNISOLL VINA';
+  const sender = S.currentUser?.name || '';
+  return {
+    to: CM.seller.email || '',
+    cc: CM.seller.emailCc || '',
+    subject: `[${me}] ${docLabel} ${cmDocNo()} - ${cmSupplierName()}${styleTxt}`,
+    body: `Dear ${CM.seller.rep ? CM.seller.rep : 'Sir/Madam'},\n\n` +
+      `Please find attached the ${docLabel.toLowerCase()} (No. ${cmDocNo()}) for your review.\n` +
+      `Kindly confirm, sign and return it at your earliest convenience.\n\n` +
+      `Best regards,\n${sender ? sender + '\n' : ''}${me}`,
+    fileBase: mailSafeName(`${isTrim ? 'PO' : 'Fabric_Contract'}_${cmDocNo()}_${cmSupplierName()}`),
+    saveToSupplier: !CM.seller.email,
+    busy: false, status: ''
+  };
+}
+
+// 인쇄용 HTML을 숨김 iframe에 렌더링 → html2pdf로 PDF Blob 생성
+function buildContractPdfBlob() {
+  const built = buildPrintableHtml();
+  if (!built) return Promise.reject(new Error('문서를 찾을 수 없습니다.'));
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:800px;height:1200px;border:0;';
+    const cleanup = () => setTimeout(() => iframe.remove(), 100);
+    const timer = setTimeout(() => { cleanup(); reject(new Error('PDF 생성 시간 초과 (인터넷 연결을 확인하세요)')); }, 45000);
+    iframe.onload = async () => {
+      try {
+        const w = iframe.contentWindow;
+        for (let i = 0; i < 150 && !w.html2pdf; i++) await new Promise(r => setTimeout(r, 100));
+        if (!w.html2pdf) throw new Error('PDF 라이브러리를 불러오지 못했습니다.');
+        if (w.document.fonts && w.document.fonts.ready) await w.document.fonts.ready;
+        const opt = {
+          margin: [12, 12, 12, 12],
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.grid'] }
+        };
+        // iframe 안의 html2pdf는 'instanceof Array' 검사를 하므로 옵션 객체를 iframe 쪽 realm에서 다시 만들어 전달
+        const blob = await w.html2pdf().set(w.JSON.parse(JSON.stringify(opt))).from(w.document.getElementById('pdf-root')).outputPdf('blob');
+        clearTimeout(timer); cleanup(); resolve(blob);
+      } catch (err) { clearTimeout(timer); cleanup(); reject(err); }
+    };
+    iframe.srcdoc = '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><style>' + built.css +
+      ' html,body{margin:0;padding:0;background:#fff;} #pdf-root{width:700px;margin:0;padding:0;overflow:hidden;}</style><script src="' + HTML2PDF_SRC + '"><\/script></head><body><div id="pdf-root">' +
+      built.html + '</div></body></html>';
+    document.body.appendChild(iframe);
+  });
+}
+
+function mailBlobToBase64(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+}
+function mailUtf8ToB64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function mailWrap76(s) { return s.replace(/.{1,76}/g, '$&\r\n'); }
+function mailEncHeader(s) { return /^[\x20-\x7E]*$/.test(s) ? s : `=?UTF-8?B?${mailUtf8ToB64(s)}?=`; }
+function mailNormAddr(s) { return String(s || '').split(/[;,\s]+/).map(x => x.trim()).filter(Boolean).join('; '); }
+
+function buildEml({ to, cc, subject, bodyText, pdfB64, fileName }) {
+  const boundary = '----=_UV_' + Date.now().toString(36);
+  const bodyHtml = `<div style="font-family:Arial,sans-serif;font-size:14px">${esc(bodyText).replace(/\r?\n/g, '<br>')}</div>`;
+  return [
+    'X-Unsent: 1',
+    `To: ${to}`,
+    cc ? `Cc: ${cc}` : null,
+    `Subject: ${mailEncHeader(subject)}`,
+    'MIME-Version: 1.0',
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    mailWrap76(mailUtf8ToB64(bodyHtml)),
+    `--${boundary}`,
+    `Content-Type: application/pdf; name="${fileName}"`,
+    'Content-Transfer-Encoding: base64',
+    `Content-Disposition: attachment; filename="${fileName}"`,
+    '',
+    mailWrap76(pdfB64),
+    `--${boundary}--`,
+    ''
+  ].filter(l => l !== null).join('\r\n');
+}
+
+function mailDownload(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.style.display = 'none';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
+}
+
+function openMailDialog() { CM.mail = defaultMailDraft(); render(); }
+function closeMailDialog() { if (CM) { CM.mail = null; render(); } }
+
+function mailSetStatus(text) { if (CM && CM.mail) { CM.mail.status = text; render(); } }
+
+async function handleMailPdfOnly() {
+  const m = CM?.mail; if (!m || m.busy) return;
+  m.busy = true; mailSetStatus('PDF 생성 중...');
+  try {
+    const pdf = await buildContractPdfBlob();
+    mailDownload(pdf, m.fileBase + '.pdf');
+    m.busy = false; mailSetStatus(`✅ PDF 저장 완료 (${Math.round(pdf.size / 1024)}KB)`);
+  } catch (err) {
+    console.error('pdf error', err);
+    if (CM && CM.mail) { CM.mail.busy = false; mailSetStatus('❌ 실패: ' + (err?.message || err)); }
+  }
+}
+
+async function handleMailCreate() {
+  const m = CM?.mail; if (!m || m.busy) return;
+  const to = mailNormAddr(m.to), cc = mailNormAddr(m.cc);
+  if (!to) { window.alert('받는 사람 이메일을 입력해주세요.'); return; }
+  const bad = [...to.split('; '), ...(cc ? cc.split('; ') : [])].filter(a => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(a));
+  if (bad.length) { window.alert('이메일 형식을 확인해주세요:\n' + bad.join('\n')); return; }
+  m.busy = true; mailSetStatus('PDF 생성 및 메일 파일 준비 중...');
+  try {
+    const pdf = await buildContractPdfBlob();
+    const pdfName = m.fileBase + '.pdf';
+    const eml = buildEml({ to, cc, subject: m.subject.trim(), bodyText: m.body, pdfB64: await mailBlobToBase64(pdf), fileName: pdfName });
+    mailDownload(new Blob([eml], { type: 'message/rfc822' }), m.fileBase + '.eml');
+    // 공급처에 받는사람/CC 저장
+    if (m.saveToSupplier && CM.supplierId) {
+      const sid = String(CM.supplierId);
+      const sup = S.suppliers.find(s => String(s.id) === sid);
+      if (sup && (sup.email !== to || (sup.emailCc || '') !== cc)) {
+        CM.seller = { ...CM.seller, email: to, emailCc: cc };
+        saveSuppliers(S.suppliers.map(s => String(s.id) === sid ? { ...s, email: to, emailCc: cc } : s));
+      }
+    }
+    if (CM && CM.mail) { CM.mail.busy = false; mailSetStatus(`✅ ${m.fileBase}.eml 다운로드 완료 (PDF ${Math.round(pdf.size / 1024)}KB) — 파일을 열면 Outlook 새 메일 창이 뜹니다`); }
+  } catch (err) {
+    console.error('mail error', err);
+    if (CM && CM.mail) { CM.mail.busy = false; mailSetStatus('❌ 실패: ' + (err?.message || err)); }
+  }
+}
+
+function renderMailDialog() {
+  const m = CM?.mail; if (!m) return '';
+  const inp = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+  const dis = m.busy ? 'disabled' : '';
+  return `<div class="no-print fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4" style="z-index:120">
+    <div class="bg-white rounded-xl shadow-2xl w-full flex flex-col" style="max-width:640px;max-height:92vh">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-slate-200">
+        <div class="flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5 text-emerald-600"></i><h3 class="font-semibold text-slate-800">메일 발송 (Outlook)</h3></div>
+        <button data-action="cmMailClose" ${dis} class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-3 overflow-auto">
+        <label class="block text-xs font-semibold text-slate-600">받는 사람 (To) <span class="font-normal text-slate-400">— 여러 명은 ; 로 구분</span>
+          <input data-mail-field="to" class="${inp} mt-1" placeholder="supplier@example.com" value="${esc(m.to)}" /></label>
+        <label class="block text-xs font-semibold text-slate-600">참조 (CC)
+          <input data-mail-field="cc" class="${inp} mt-1" placeholder="purchase@unisoll.com" value="${esc(m.cc)}" /></label>
+        <label class="block text-xs font-semibold text-slate-600">제목
+          <input data-mail-field="subject" class="${inp} mt-1" value="${esc(m.subject)}" /></label>
+        <label class="block text-xs font-semibold text-slate-600">본문
+          <textarea data-mail-field="body" rows="8" class="${inp} mt-1" style="resize:vertical">${esc(m.body)}</textarea></label>
+        <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+          <i data-lucide="paperclip" class="w-4 h-4 text-slate-400"></i><span class="font-mono">${esc(m.fileBase)}.pdf</span>
+        </div>
+        ${CM.supplierId ? `<label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+          <input type="checkbox" data-mail-field="saveToSupplier" ${m.saveToSupplier ? 'checked' : ''} class="rounded" />
+          받는 사람/CC를 공급처 <b>${esc(cmSupplierName())}</b>에 저장 (다음부터 자동 입력)</label>` : ''}
+        <p class="text-xs text-slate-400 leading-relaxed">다운로드된 <b>.eml</b> 파일을 열면 PDF가 첨부된 Outlook 새 메일 창이 열립니다. 내용 확인 후 [보내기]를 누르세요.<br/>※ 다른 프로그램으로 열리면: 파일 우클릭 → 연결 프로그램 → Outlook</p>
+        ${m.status ? `<div class="text-sm ${m.status.startsWith('❌') ? 'text-red-600' : m.status.startsWith('✅') ? 'text-emerald-700' : 'text-slate-600'}">${esc(m.status)}</div>` : ''}
+      </div>
+      <div class="flex justify-end gap-2 px-5 py-3 border-t border-slate-200 bg-slate-50 rounded-b-xl">
+        <button data-action="cmMailPdf" ${dis} class="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg border bg-white text-slate-700 border-slate-300 hover:bg-slate-100 disabled:opacity-50"><i data-lucide="file-down" class="w-4 h-4"></i> PDF만 저장</button>
+        <button data-action="cmMailCreate" ${dis} class="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg text-white ${m.busy ? 'bg-slate-400 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-700'}">
+          ${m.busy ? `<i data-lucide="rotate-ccw" class="w-4 h-4 animate-spin"></i> 생성 중...` : `<i data-lucide="send" class="w-4 h-4"></i> Outlook 메일 만들기`}</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 
@@ -4202,6 +4410,10 @@ function handleClick(e) {
     case 'resetOrderQty': updateLine(id, 'orderQty', ''); break;
     case 'cmExportPdf': handleExportPdf(); break;
     case 'cmDownloadHtml': handleDownloadHtml(); break;
+    case 'cmOpenMail': openMailDialog(); break;
+    case 'cmMailClose': closeMailDialog(); break;
+    case 'cmMailPdf': handleMailPdfOnly(); break;
+    case 'cmMailCreate': handleMailCreate(); break;
 
     // ── Login ──
     case 'loginSubmit': doLogin(S.loginId || '', S.loginPw || ''); break;
@@ -4286,6 +4498,10 @@ function handleDblClick(e) {
 
 function handleChange(e) {
   const el = e.target;
+  if (el.dataset && el.dataset.mailField) {
+    if (CM && CM.mail) CM.mail[el.dataset.mailField] = el.type === 'checkbox' ? el.checked : el.value;
+    return;
+  }
   if (el.id === 'csvFileInput') { handleImportCSVFile(el.files[0]); el.value = null; return; }
   if (el.id === 'loginSubmitBtn') return;
 
@@ -4356,6 +4572,10 @@ function handleSaveAndMove(direction) {
 
 function handleInput(e) {
   const el = e.target;
+  if (el.dataset && el.dataset.mailField) {
+    if (CM && CM.mail) CM.mail[el.dataset.mailField] = el.type === 'checkbox' ? el.checked : el.value;
+    return;
+  }
   // 콤마 포맷 대상 입력창은 편집 중 콤마가 섞여도 항상 원시 숫자로 정규화 (계산 오류 방지)
   if (el.dataset && el.dataset.fmt !== undefined && el.value.includes(',')) {
     const pos = el.selectionStart;
